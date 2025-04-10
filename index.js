@@ -8,30 +8,43 @@ app.use(cors());
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("connected to MongoDB"));
+    .then(() => console.log("✅ Connected to MongoDB"))
+    .catch(err => console.error("❌ MongoDB connection error:", err));
 
 const WordSchema = new mongoose.Schema({
     word: String,
-    meaning:String,
-    example:String,
-    createdAt : { type : Date , default : Date.now}
-});
-const word = mongoose.model('Word', WordSchema);
-
-
-app.get('/' ,(req , res) =>{
-    res.send("word ocean API is running...");
+    meaning: String,
+    example: String,
+    createdAt: { type: Date, default: Date.now }
 });
 
-app.post('/add-word' ,async (req , res) => {
-    const {word , meaning , example} = req.body;
-    const entry = new WordSchema({word , meaning , example });
-    await entry.save();
-    res.json({message : 'Word Added!' });
+// 🔥 Model name starts with capital letter by convention
+const Word = mongoose.model('Word', WordSchema);
+
+app.get('/', (req, res) => {
+    res.send("🌊 Word Ocean API is running...");
 });
 
-app.get('/words' , async (req , res)=>{
-    const words = await WordSchema.find();
-    res.json(words);
+app.post('/add-word', async (req, res) => {
+    try {
+        const { word, meaning, example } = req.body;
+        const entry = new Word({ word, meaning, example }); // ✅ Correct model
+        await entry.save();
+        res.json({ message: '✅ Word Added!' });
+    } catch (err) {
+        console.error('❌ Error in /add-word:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
-app.listen(3000 , ()=> console.log("server running on port 3000"));
+
+app.get('/words', async (req, res) => {
+    try {
+        const words = await Word.find(); // ✅ Correct model
+        res.json(words);
+    } catch (err) {
+        console.error('❌ Error in /words:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.listen(3000, () => console.log("🚀 Server running on port 3000"));
