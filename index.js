@@ -18,6 +18,11 @@ const WordSchema = new mongoose.Schema({
 });
 const word = mongoose.model('Word', WordSchema);
 
+
+app.get('/' ,(req , res) =>{
+    res.send("word ocean API is running...");
+});
+
 app.post('/add-word' ,async (req , res) => {
     const {word , meaning , example} = req.body;
     const entry = new WordSchema({word , meaning , example });
